@@ -1,6 +1,7 @@
 package life.code.owen.controller;
 
 
+import javax.servlet.http.HttpServletRequest;
 import life.code.owen.dto.AccessTokenDTO;
 import life.code.owen.dto.GithubUserDTO;
 import life.code.owen.provider.GithubProvider;
@@ -34,7 +35,8 @@ public class AuthorizeController {
 
   @GetMapping("/githubcallback")
   public String githubcallback(@RequestParam(name = "state") String state,
-      @RequestParam(name = "code") String code) {
+      @RequestParam(name = "code") String code,
+      HttpServletRequest request) {
     AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
     accessTokenDTO.setClient_id(clientId);
     accessTokenDTO.setClient_secret(clientSecret);
@@ -43,8 +45,14 @@ public class AuthorizeController {
     accessTokenDTO.setRedirect_uri(redirectUri);
     String accessToken = githubProvider.getAccessToken(accessTokenDTO);
     GithubUserDTO githubUser = githubProvider.getGithubUser(accessToken);
-    System.out.println("githubUser: "+githubUser.getLogin());
-    return "index";
+    System.out.println(" githubUser :"+githubUser);
+    if (githubUser != null){
+      System.out.println("githubUser: "+githubUser.getLogin());
+      request.getSession().setAttribute("user",githubUser);
+      return "redirect:/";
+    }else {
+      return "redirect:/";
+    }
   }
 
 }
